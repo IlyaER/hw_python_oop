@@ -14,12 +14,11 @@ class InfoMessage:
         self.calories = calories
 
     def get_message(self):
-        message = (f'Тип тренировки: {self.training_type}; '
-                   f'Длительность: {self.duration:.3f} ч.; '
-                   f'Дистанция: {self.distance:.3f} км; '
-                   f'Ср. скорость: {self.speed:.3f} км/ч; '
-                   f'Потрачено ккал: {self.calories:.3f}.')
-        return message
+        return (f'Тип тренировки: {self.training_type}; '
+                f'Длительность: {self.duration:.3f} ч.; '
+                f'Дистанция: {self.distance:.3f} км; '
+                f'Ср. скорость: {self.speed:.3f} км/ч; '
+                f'Потрачено ккал: {self.calories:.3f}.')
 
 
 class Training:
@@ -40,14 +39,12 @@ class Training:
 
     def get_distance(self) -> float:
         """Получить дистанцию в км."""
-        dist = self.action * self.__class__.LEN_STEP / Training.M_IN_KM
-        return dist
+        return self.action * self.__class__.LEN_STEP / Training.M_IN_KM
 
     def get_mean_speed(self) -> float:
         """Получить среднюю скорость движения."""
 
-        speed = self.get_distance() / self.duration
-        return speed
+        return self.get_distance() / self.duration
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
@@ -55,13 +52,12 @@ class Training:
 
     def show_training_info(self) -> InfoMessage:
         """Вернуть информационное сообщение о выполненной тренировке."""
-        info = InfoMessage(self.__class__.__name__,
+        return InfoMessage(self.__class__.__name__,
                            self.duration,
                            self.get_distance(),
                            self.get_mean_speed(),
                            self.get_spent_calories()
                            )
-        return info
 
 
 class Running(Training):
@@ -70,10 +66,9 @@ class Running(Training):
     def get_spent_calories(self) -> float:
         cal_mult_1 = 18
         cal_mult_2 = 20
-        spent_cal = ((cal_mult_1 * self.get_mean_speed() - cal_mult_2)
-                     * self.weight / Training.M_IN_KM
-                     * self.duration * Training.MINUTES)
-        return spent_cal
+        return ((cal_mult_1 * self.get_mean_speed() - cal_mult_2)
+                * self.weight / Training.M_IN_KM
+                * self.duration * Training.MINUTES)
 
 
 class SportsWalking(Training):
@@ -91,11 +86,10 @@ class SportsWalking(Training):
         cal_mult_1 = 0.035
         cal_mult_2 = 2
         cal_mult_3 = 0.029
-        spent_cal = (cal_mult_1 * self.weight
-                     + (self.get_mean_speed() ** cal_mult_2
-                     // self.height) * cal_mult_3 * self.weight) \
-                     * self.duration * Training.MINUTES
-        return spent_cal
+        return ((cal_mult_1 * self.weight
+                + (self.get_mean_speed() ** cal_mult_2
+                   // self.height) * cal_mult_3 * self.weight)
+                * self.duration * Training.MINUTES)
 
 
 class Swimming(Training):
@@ -114,14 +108,15 @@ class Swimming(Training):
         self.count_pool = count_pool
 
     def get_mean_speed(self) -> float:
-        speed = self.length_pool * self.count_pool / Training.M_IN_KM / self.duration
-        return speed
+        return (self.length_pool
+                * self.count_pool
+                / Training.M_IN_KM
+                / self.duration)
 
     def get_spent_calories(self) -> float:
         cal_mult_1 = 1.1
         cal_mult_2 = 2
-        spent_cal = (self.get_mean_speed() + cal_mult_1) * cal_mult_2 * self.weight
-        return spent_cal
+        return (self.get_mean_speed() + cal_mult_1) * cal_mult_2 * self.weight
 
 
 def read_package(workout_type: str, data: list) -> Training:
@@ -131,8 +126,7 @@ def read_package(workout_type: str, data: list) -> Training:
                   "WLK": SportsWalking,
                   }
     train_type = train_dict.get(workout_type)
-    train = train_type(*data)
-    return train
+    return train_type(*data)
 
 
 def main(training: Training) -> None:
@@ -152,4 +146,3 @@ if __name__ == '__main__':
     for workout_type, data in packages:
         training = read_package(workout_type, data)
         main(training)
-
