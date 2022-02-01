@@ -13,7 +13,7 @@ class InfoMessage:
         self.speed = speed
         self.calories = calories
 
-    def get_message(self):
+    def get_message(self) -> str:
         return (f'Тип тренировки: {self.training_type}; '
                 f'Длительность: {self.duration:.3f} ч.; '
                 f'Дистанция: {self.distance:.3f} км; '
@@ -23,10 +23,9 @@ class InfoMessage:
 
 class Training:
     """Базовый класс тренировки."""
-
-    M_IN_KM = 1000
-    LEN_STEP = 0.65
-    MINUTES = 60
+    M_IN_KM: int = 1000
+    LEN_STEP: float = 0.65
+    MINUTES: int = 60
 
     def __init__(self,
                  action: int,
@@ -43,12 +42,11 @@ class Training:
 
     def get_mean_speed(self) -> float:
         """Получить среднюю скорость движения."""
-
         return self.get_distance() / self.duration
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
-        pass
+        raise NotImplementedError("Should be implemented in Subclass!")
 
     def show_training_info(self) -> InfoMessage:
         """Вернуть информационное сообщение о выполненной тренировке."""
@@ -62,17 +60,22 @@ class Training:
 
 class Running(Training):
     """Тренировка: бег."""
+    CAL_MULT_1: int = 18
+    CAL_MULT_2: int = 20
 
     def get_spent_calories(self) -> float:
-        cal_mult_1 = 18
-        cal_mult_2 = 20
-        return ((cal_mult_1 * self.get_mean_speed() - cal_mult_2)
+        return ((Running.CAL_MULT_1 * self.get_mean_speed()
+                - Running.CAL_MULT_2)
                 * self.weight / Training.M_IN_KM
                 * self.duration * Training.MINUTES)
 
 
 class SportsWalking(Training):
     """Тренировка: спортивная ходьба."""
+    CAL_MULT_1: float = 0.035
+    CAL_MULT_2: int = 2
+    CAL_MULT_3: float = 0.029
+
     def __init__(self,
                  action: int,
                  duration: float,
@@ -82,19 +85,18 @@ class SportsWalking(Training):
         super().__init__(action, duration, weight)
         self.height = height
 
-    def get_spent_calories(self):
-        cal_mult_1 = 0.035
-        cal_mult_2 = 2
-        cal_mult_3 = 0.029
-        return ((cal_mult_1 * self.weight
-                + (self.get_mean_speed() ** cal_mult_2
-                   // self.height) * cal_mult_3 * self.weight)
+    def get_spent_calories(self) -> float:
+        return ((SportsWalking.CAL_MULT_1 * self.weight
+                + (self.get_mean_speed() ** SportsWalking.CAL_MULT_2
+                   // self.height) * SportsWalking.CAL_MULT_3 * self.weight)
                 * self.duration * Training.MINUTES)
 
 
 class Swimming(Training):
     """Тренировка: плавание."""
     LEN_STEP = 1.38
+    CAL_MULT_1 = 1.1
+    CAL_MULT_2 = 2
 
     def __init__(self,
                  action: int,
@@ -114,9 +116,9 @@ class Swimming(Training):
                 / self.duration)
 
     def get_spent_calories(self) -> float:
-        cal_mult_1 = 1.1
-        cal_mult_2 = 2
-        return (self.get_mean_speed() + cal_mult_1) * cal_mult_2 * self.weight
+        return ((self.get_mean_speed() + Swimming.CAL_MULT_1)
+                * Swimming.CAL_MULT_2
+                * self.weight)
 
 
 def read_package(workout_type: str, data: list) -> Training:
